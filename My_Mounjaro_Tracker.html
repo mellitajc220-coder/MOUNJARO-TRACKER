@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Mounjaro Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #d4e5d0 0%, #b8cdb5 100%); min-height: 100vh; padding: 1rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .setup-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .setup-card { background: white; border-radius: 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.15); padding: 2rem; max-width: 28rem; width: 100%; }
+        .setup-icon { text-align: center; font-size: 4rem; margin-bottom: 1rem; }
+        .setup-title { text-align: center; font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem; }
+        .setup-subtitle { text-align: center; color: #666; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 600; color: #333; margin-bottom: 0.5rem; }
+        .form-input { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 0.5rem; font-size: 1rem; }
+        .form-input:focus { outline: none; border-color: #6b8e6b; }
+        .btn { width: 100%; padding: 0.75rem; font-size: 1rem; font-weight: 600; border: none; border-radius: 0.5rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #a8b5a0 0%, #8fa287 100%); color: black; font-weight: 700; }
+        .btn-primary:hover { box-shadow: 0 10px 25px rgba(107, 142, 107, 0.3); }
+        .btn-secondary { background: #e5e7eb; color: #333; }
+        .btn-secondary:hover { background: #d1d5db; }
+        .btn-danger { background: #fee2e2; color: #dc2626; font-size: 0.875rem; margin-top: 1rem; }
+        .btn-danger:hover { background: #fecaca; }
+        .header { background: linear-gradient(135deg, #a8b5a0 0%, #8fa287 100%); border-radius: 1rem 1rem 0 0; padding: 1.5rem; color: white; position: relative; }
+        .settings-btn { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.1); border: none; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-size: 1.25rem; color: white; }
+        .settings-btn:hover { background: rgba(0,0,0,0.2); }
+        .user-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; color: white; }
+        .app-title { font-size: 1.875rem; font-weight: bold; margin-bottom: 0.5rem; color: white; }
+        .affirmation { font-size: 0.875rem; font-style: italic; color: #4a6b4a; text-align: center; padding: 1rem; background: #e8f0e6; border-radius: 0.5rem; margin-top: 1rem; font-weight: 600; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem; }
+        .stat-card { background: rgba(0,0,0,0.1); border-radius: 0.5rem; padding: 0.75rem; }
+        .stat-label { font-size: 0.75rem; opacity: 0.9; margin-bottom: 0.25rem; font-weight: 600; color: white; }
+        .stat-value { font-size: 1.25rem; font-weight: bold; color: white; }
+        .stat-value.green { color: white; }
+        .stat-value.yellow { color: white; }
+        .tabs { background: white; display: flex; border-bottom: 1px solid #e5e7eb; }
+        .tab { flex: 1; padding: 1rem; font-weight: 600; border: none; background: none; cursor: pointer; color: #6b7280; border-bottom: 2px solid transparent; }
+        .tab.active { color: #6b8e6b; border-bottom-color: #6b8e6b; }
+        .content { background: white; border-radius: 0 0 1rem 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.15); padding: 1.5rem; min-height: 250px; }
+        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .content-title { font-size: 1.25rem; font-weight: bold; color: #333; }
+        .btn-add { background: #6b8e6b; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-add:hover { background: #5a7a5a; }
+        .form-card { background: #e8f0e6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+        .form-card-title { font-weight: 600; color: #4a6b4a; margin-bottom: 0.75rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .form-grid-full { grid-column: span 2; }
+        .form-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: linear-gradient(135deg, #a8b5a0 0%, #8fa287 100%); color: black; }
+        th { padding: 1rem; text-align: left; font-weight: 700; font-size: 0.875rem; }
+        th.center { text-align: center; }
+        tbody tr { transition: background 0.3s; }
+        tbody tr:nth-child(even) { background: #e8f0e6; }
+        tbody tr:hover { background: #d4e5d0; }
+        td { padding: 1rem; font-size: 0.875rem; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; }
+        .badge-purple { background: #d4e5d0; color: #4a6b4a; }
+        .badge-red { background: #fecaca; color: #dc2626; }
+        .badge-green { background: #bbf7d0; color: #16a34a; }
+        .weight-large { font-weight: bold; font-size: 1.125rem; color: #333; }
+        .actions { display: flex; gap: 0.5rem; justify-content: center; }
+        .btn-icon { border: none; padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; font-size: 1rem; }
+        .btn-edit { background: #dbeafe; color: #2563eb; }
+        .btn-edit:hover { background: #bfdbfe; }
+        .btn-delete { background: #fee2e2; color: #dc2626; }
+        .btn-delete:hover { background: #fecaca; }
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .summary-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .modal { background: white; border-radius: 1rem; padding: 2rem; max-width: 28rem; width: 100%; }
+        .modal-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; }
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .modal-actions .btn { flex: 1; }
+        #customDoseContainer { display: none; }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        let profile = JSON.parse(localStorage.getItem('mounjaro_profile')) || { name: '', startingWeight: 0, startDate: '', desiredWeight: 0, measurementUnit: 'cm', isSetup: false };
+        let weightEntries = JSON.parse(localStorage.getItem('mounjaro_weights')) || [];
+        let measurements = JSON.parse(localStorage.getItem('mounjaro_measurements')) || [];
+        let activeTab = 'weight';
+        let editingWeightIndex = null;
+        let editingMeasurementIndex = null;
+
+        const affirmations = [
+            "Every small step is progress",
+            "You are stronger than you think",
+            "Trust the process, trust yourself",
+            "Progress, not perfection",
+            "Your journey is uniquely yours",
+            "Celebrate every victory",
+            "You've got this!",
+            "One day at a time",
+            "Be proud of how far you've come",
+            "Your health is worth it",
+            "Consistency creates change",
+            "You are worth the effort",
+            "Small changes, big results",
+            "Keep going, you're doing great",
+            "Every choice matters"
+        ];
+
+        function getRandomAffirmation() {
+            return affirmations[Math.floor(Math.random() * affirmations.length)];
+        }
+
+        function formatDate(d) {
+            if (!d) return '';
+            const [y, m, day] = d.split('-');
+            return day + '/' + m + '/' + y.slice(2);
+        }
+
+        function saveData() {
+            localStorage.setItem('mounjaro_profile', JSON.stringify(profile));
+            localStorage.setItem('mounjaro_weights', JSON.stringify(weightEntries));
+            localStorage.setItem('mounjaro_measurements', JSON.stringify(measurements));
+        }
+
+        function render() {
+            document.getElementById('app').innerHTML = !profile.isSetup ? renderSetup() : renderMain();
+        }
+
+        function renderSetup() {
+            return '<div class="setup-screen"><div class="setup-card"><div class="setup-icon">⛑️</div><h1 class="setup-title">Welcome!</h1><p class="setup-subtitle">Let\'s set up your Mounjaro tracker</p><div class="form-group"><label class="form-label">Your Name</label><input type="text" id="setupName" class="form-input" placeholder="Enter your name"></div><div class="form-group"><label class="form-label">Starting Weight (kg)</label><input type="number" step="0.1" id="setupWeight" class="form-input" placeholder="e.g. 73.6"></div><div class="form-group"><label class="form-label">Desired Weight (kg)</label><input type="number" step="0.1" id="setupDesired" class="form-input" placeholder="e.g. 60.0"></div><div class="form-group"><label class="form-label">Start Date</label><input type="date" id="setupDate" class="form-input"></div><div class="form-group"><label class="form-label">Measurement Unit</label><select id="setupUnit" class="form-input"><option value="cm">Centimeters (cm)</option><option value="in">Inches (in)</option></select></div><button onclick="saveSetup()" class="btn btn-primary">Start Tracking</button></div></div>';
+        }
+
+        function saveSetup() {
+            const name = document.getElementById('setupName').value;
+            const weight = parseFloat(document.getElementById('setupWeight').value);
+            const desired = parseFloat(document.getElementById('setupDesired').value);
+            const date = document.getElementById('setupDate').value;
+            const unit = document.getElementById('setupUnit').value;
+            if (!name || !weight || !desired || !date) { alert('Please fill in all fields'); return; }
+            profile = { name, startingWeight: weight, desiredWeight: desired, startDate: date, measurementUnit: unit, isSetup: true };
+            weightEntries = [{ week: 1, date, dose: 0, weight, notes: 'Starting Weight' }];
+            saveData();
+            render();
+        }
+
+        function renderMain() {
+            const cw = weightEntries.length > 0 ? weightEntries[weightEntries.length - 1].weight : profile.startingWeight;
+            const tl = (profile.startingWeight - cw).toFixed(1);
+            const rem = (cw - profile.desiredWeight).toFixed(1);
+            const unit = profile.measurementUnit || 'cm';
+            
+            // Dynamic header based on active tab
+            let headerStats = '';
+            if (activeTab === 'measurements' && measurements.length >= 2) {
+                const calcLoss = (a) => (measurements[0][a] - measurements[measurements.length - 1][a]).toFixed(1);
+                headerStats = '<div class="stats-grid" style="grid-template-columns: repeat(6, 1fr);"><div class="stat-card"><div class="stat-label">Bust Loss</div><div class="stat-value">−' + calcLoss('bust') + ' ' + unit + '</div></div><div class="stat-card"><div class="stat-label">Waist Loss</div><div class="stat-value">−' + calcLoss('waist') + ' ' + unit + '</div></div><div class="stat-card"><div class="stat-label">Bum Loss</div><div class="stat-value">−' + calcLoss('bum') + ' ' + unit + '</div></div><div class="stat-card"><div class="stat-label">Hips Loss</div><div class="stat-value">−' + calcLoss('hips') + ' ' + unit + '</div></div><div class="stat-card"><div class="stat-label">L Leg Loss</div><div class="stat-value">−' + calcLoss('lLeg') + ' ' + unit + '</div></div><div class="stat-card"><div class="stat-label">R Leg Loss</div><div class="stat-value">−' + calcLoss('rLeg') + ' ' + unit + '</div></div></div>';
+            } else {
+                headerStats = '<div class="stats-grid"><div class="stat-card"><div class="stat-label">Starting Weight</div><div class="stat-value">' + parseFloat(profile.startingWeight).toFixed(1) + ' kg</div></div><div class="stat-card"><div class="stat-label">Current Weight</div><div class="stat-value">' + parseFloat(cw).toFixed(1) + ' kg</div></div><div class="stat-card"><div class="stat-label">Total Loss</div><div class="stat-value green">-' + tl + ' kg</div></div><div class="stat-card"><div class="stat-label">To Goal</div><div class="stat-value yellow">' + (rem > 0 ? rem : '0.0') + ' kg</div></div></div>';
+            }
+            
+            return '<div class="container"><div class="header"><button onclick="showEditProfile()" class="settings-btn">⚙️</button><h1 class="app-title">⛑️ My Mounjaro Tracker</h1>' + headerStats + '<div class="affirmation">"' + getRandomAffirmation() + '"</div></div><div class="tabs"><button onclick="switchTab(\'weight\')" class="tab ' + (activeTab === 'weight' ? 'active' : '') + '">📊 Weight Tracker</button><button onclick="switchTab(\'history\')" class="tab ' + (activeTab === 'history' ? 'active' : '') + '">📋 History</button><button onclick="switchTab(\'measurements\')" class="tab ' + (activeTab === 'measurements' ? 'active' : '') + '">📏 Body Measurements</button></div><div class="content">' + (activeTab === 'weight' ? renderWeightTab() : activeTab === 'measurements' ? renderMeasurementsTab() : renderHistoryTab()) + '</div></div>';
+        }
+
+        function renderWeightTab() {
+            const isEditing = editingWeightIndex !== null;
+            const formData = isEditing ? weightEntries[editingWeightIndex] : {};
+            const doseOptions = [0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 'other'];
+            let doseSelect = '<select id="wDose" class="form-input" onchange="toggleCustomDose()">';
+            doseOptions.forEach(d => {
+                if (d === 'other') {
+                    const selected = (formData.dose && ![0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0].includes(formData.dose)) ? ' selected' : '';
+                    doseSelect += '<option value="other"' + selected + '>Other (manual entry)</option>';
+                } else {
+                    const selected = (formData.dose == d) ? ' selected' : '';
+                    doseSelect += '<option value="' + d + '"' + selected + '>' + (d > 0 ? d + ' mg' : 'None') + '</option>';
+                }
+            });
+            doseSelect += '</select>';
+            
+            const showCustom = isEditing && formData.dose && ![0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0].includes(formData.dose);
+            
+            return '<div class="content-header"><h2 class="content-title">Add New Entry</h2></div><div class="form-card"><div class="form-grid"><div><label class="form-label">Date</label><input type="date" id="wDate" value="' + (formData.date || '') + '" class="form-input" placeholder="Date"></div><div><label class="form-label">Dosage</label>' + doseSelect + '</div><div id="customDoseContainer" style="display:' + (showCustom ? 'block' : 'none') + ';" class="form-grid-full"><input type="number" step="0.1" id="wCustomDose" value="' + (showCustom ? formData.dose : '') + '" placeholder="Enter custom dosage (mg)" class="form-input"></div><input type="number" step="0.1" id="wWeight" value="' + (formData.weight || '') + '" placeholder="Weight (kg)" class="form-input"><input type="text" id="wNotes" value="' + (formData.notes || '') + '" placeholder="Notes (optional)" class="form-input"></div><div class="form-actions"><button onclick="saveWeight()" class="btn btn-primary">' + (isEditing ? 'Update Entry' : 'Save Entry') + '</button>' + (isEditing ? '<button onclick="cancelWeightForm()" class="btn btn-secondary">Cancel</button>' : '') + '</div></div>';
+        }
+
+        function toggleCustomDose() {
+            const select = document.getElementById('wDose');
+            const container = document.getElementById('customDoseContainer');
+            if (select.value === 'other') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function renderHistoryTab() {
+            let rows = '';
+            // Reverse to show most recent first
+            const reversedEntries = [...weightEntries].reverse();
+            reversedEntries.forEach((e, i) => {
+                const originalIndex = weightEntries.length - 1 - i;
+                const pw = originalIndex > 0 ? weightEntries[originalIndex - 1].weight : profile.startingWeight;
+                const wl = (pw - e.weight).toFixed(1);
+                rows += '<tr><td style="font-weight:600;color:#4a6b4a;">' + formatDate(e.date) + '</td><td><span class="badge badge-purple">' + (e.dose > 0 ? e.dose + 'mg' : '—') + '</span></td><td class="weight-large">' + parseFloat(e.weight).toFixed(1) + '</td><td class="weight-large">' + (originalIndex > 0 ? '−' + wl : '—') + '</td><td style="color:#6b7280;font-style:italic;font-size:0.875rem;">' + (e.notes || '') + '</td><td><div class="actions"><button onclick="editWeight(' + originalIndex + ')" class="btn-icon btn-edit">✏️</button>' + (originalIndex !== 0 ? '<button onclick="deleteWeight(' + originalIndex + ')" class="btn-icon btn-delete">🗑️</button>' : '') + '</div></td></tr>';
+            });
+            
+            return '<div class="content-header"><h2 class="content-title">Weight History</h2></div>' + (weightEntries.length > 0 ? '<div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Dose</th><th>Weight</th><th>Weekly Loss</th><th>Notes</th><th class="center">Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div class="empty-state"><p style="font-size:1.125rem;margin-bottom:0.5rem;">No entries yet</p><p style="font-size:0.875rem;">Add your first entry in the Weight Tracker tab</p></div>');
+        }
+
+        function renderMeasurementsTab() {
+            const unit = profile.measurementUnit || 'cm';
+            if (measurements.length === 0) return '<div class="content-header"><h2 class="content-title">Body Measurements (' + unit + ')</h2><button onclick="showAddMeasurement()" class="btn-add">➕ Add Measurement</button></div><div id="measurementForm"></div><div class="empty-state"><p style="font-size:1.125rem;margin-bottom:0.5rem;">No measurements yet</p><p style="font-size:0.875rem;">Click "Add Measurement" to start tracking</p></div>';
+            
+            let rows = '';
+            // Reverse the array to show most recent first
+            const reversedMeasurements = [...measurements].reverse();
+            reversedMeasurements.forEach((m, i) => {
+                const originalIndex = measurements.length - 1 - i;
+                rows += '<tr><td style="font-weight:600;color:#4a6b4a;">' + formatDate(m.date) + '</td><td style="text-align:center;font-weight:600;">' + m.bust + '</td><td style="text-align:center;font-weight:600;">' + m.waist + '</td><td style="text-align:center;font-weight:600;">' + m.bum + '</td><td style="text-align:center;font-weight:600;">' + m.hips + '</td><td style="text-align:center;font-weight:600;">' + m.lLeg + '</td><td style="text-align:center;font-weight:600;">' + m.rLeg + '</td><td><div class="actions"><button onclick="editMeasurement(' + originalIndex + ')" class="btn-icon btn-edit">✏️</button><button onclick="deleteMeasurement(' + originalIndex + ')" class="btn-icon btn-delete">🗑️</button></div></td></tr>';
+            });
+            
+            return '<div class="content-header"><h2 class="content-title">Body Measurements (' + unit + ')</h2><button onclick="showAddMeasurement()" class="btn-add">➕ Add Measurement</button></div><div id="measurementForm"></div><div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th class="center">Bust</th><th class="center">Waist</th><th class="center">Bum</th><th class="center">Hips</th><th class="center">L Leg</th><th class="center">R Leg</th><th class="center">Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+        }
+
+        function switchTab(tab) { activeTab = tab; editingWeightIndex = null; editingMeasurementIndex = null; render(); }
+
+        function showAddWeight() { editingWeightIndex = null; render(); }
+
+        function showWeightForm(d = {}) {
+            // This function is no longer needed as form is always visible
+        }
+
+        function saveWeight() {
+            const date = document.getElementById('wDate').value;
+            const doseSelect = document.getElementById('wDose').value;
+            let dose;
+            if (doseSelect === 'other') {
+                dose = parseFloat(document.getElementById('wCustomDose').value);
+                if (!dose || dose <= 0) { alert('Please enter a valid custom dosage'); return; }
+            } else {
+                dose = parseFloat(doseSelect) || 0;
+            }
+            const weight = parseFloat(document.getElementById('wWeight').value);
+            const notes = document.getElementById('wNotes').value;
+            if (!date || !weight) { alert('Please enter date and weight'); return; }
+            if (editingWeightIndex !== null) {
+                weightEntries[editingWeightIndex] = { ...weightEntries[editingWeightIndex], date, dose, weight, notes };
+                editingWeightIndex = null;
+            } else {
+                const lw = weightEntries.length > 0 ? weightEntries[weightEntries.length - 1].week : 0;
+                weightEntries.push({ week: lw + 1, date, dose, weight, notes });
+                document.getElementById('wDate').value = '';
+                document.getElementById('wDose').value = '0';
+                document.getElementById('wWeight').value = '';
+                document.getElementById('wNotes').value = '';
+                if (document.getElementById('customDoseContainer')) {
+                    document.getElementById('customDoseContainer').style.display = 'none';
+                }
+            }
+            saveData(); 
+            render();
+        }
+
+        function editWeight(i) { editingWeightIndex = i; activeTab = 'weight'; render(); }
+        function deleteWeight(i) { if (confirm('Delete this entry?')) { weightEntries.splice(i, 1); saveData(); render(); } }
+        function cancelWeightForm() { editingWeightIndex = null; render(); }
+
+        function showAddMeasurement() { editingMeasurementIndex = null; showMeasurementForm(); }
+
+        function showMeasurementForm(d = {}) {
+            document.getElementById('measurementForm').innerHTML = '<div class="form-card"><h3 class="form-card-title">' + (editingMeasurementIndex !== null ? 'Edit Measurement' : 'Add New Measurement') + '</h3><div class="form-grid"><input type="date" id="mDate" value="' + (d.date || '') + '" class="form-input form-grid-full"><input type="number" step="0.1" id="mBust" value="' + (d.bust || '') + '" placeholder="Bust (cm)" class="form-input"><input type="number" step="0.1" id="mWaist" value="' + (d.waist || '') + '" placeholder="Waist (cm)" class="form-input"><input type="number" step="0.1" id="mBum" value="' + (d.bum || '') + '" placeholder="Bum (cm)" class="form-input"><input type="number" step="0.1" id="mHips" value="' + (d.hips || '') + '" placeholder="Hips (cm)" class="form-input"><input type="number" step="0.1" id="mLLeg" value="' + (d.lLeg || '') + '" placeholder="L Leg (cm)" class="form-input"><input type="number" step="0.1" id="mRLeg" value="' + (d.rLeg || '') + '" placeholder="R Leg (cm)" class="form-input"></div><div class="form-actions"><button onclick="saveMeasurement()" class="btn btn-primary">' + (editingMeasurementIndex !== null ? 'Update' : 'Save') + '</button><button onclick="cancelMeasurementForm()" class="btn btn-secondary">Cancel</button></div></div>';
+        }
+
+        function saveMeasurement() {
+            const date = document.getElementById('mDate').value;
+            const bust = parseFloat(document.getElementById('mBust').value) || 0;
+            const waist = parseFloat(document.getElementById('mWaist').value) || 0;
+            const bum = parseFloat(document.getElementById('mBum').value) || 0;
+            const hips = parseFloat(document.getElementById('mHips').value) || 0;
+            const lLeg = parseFloat(document.getElementById('mLLeg').value) || 0;
+            const rLeg = parseFloat(document.getElementById('mRLeg').value) || 0;
+            if (!date) { alert('Please enter a date'); return; }
+            if (editingMeasurementIndex !== null) {
+                measurements[editingMeasurementIndex] = { date, bust, waist, bum, hips, lLeg, rLeg };
+            } else {
+                measurements.push({ date, bust, waist, bum, hips, lLeg, rLeg });
+            }
+            saveData(); editingMeasurementIndex = null; render();
+        }
+
+        function editMeasurement(i) { editingMeasurementIndex = i; render(); showMeasurementForm(measurements[i]); }
+        function deleteMeasurement(i) { if (confirm('Delete this measurement?')) { measurements.splice(i, 1); saveData(); render(); } }
+        function cancelMeasurementForm() { editingMeasurementIndex = null; render(); }
+
+        function showEditProfile() {
+            const o = document.createElement('div');
+            o.className = 'overlay';
+            o.innerHTML = '<div class="modal"><h2 class="modal-title">Edit Profile</h2><div class="form-group"><label class="form-label">Name</label><input type="text" id="editName" value="' + profile.name + '" class="form-input"></div><div class="form-group"><label class="form-label">Starting Weight (kg)</label><input type="number" step="0.1" id="editWeight" value="' + profile.startingWeight + '" class="form-input"></div><div class="form-group"><label class="form-label">Desired Weight (kg)</label><input type="number" step="0.1" id="editDesired" value="' + profile.desiredWeight + '" class="form-input"></div><div class="form-group"><label class="form-label">Start Date</label><input type="date" id="editDate" value="' + profile.startDate + '" class="form-input"></div><div class="form-group"><label class="form-label">Measurement Unit</label><select id="editUnit" class="form-input"><option value="cm"' + (profile.measurementUnit === 'cm' ? ' selected' : '') + '>Centimeters (cm)</option><option value="in"' + (profile.measurementUnit === 'in' ? ' selected' : '') + '>Inches (in)</option></select></div><div class="modal-actions"><button onclick="updateProfile()" class="btn btn-primary">Save</button><button onclick="closeEditProfile()" class="btn btn-secondary">Cancel</button></div><button onclick="resetAll()" class="btn btn-danger">Reset All Data</button></div>';
+            o.onclick = (e) => { if (e.target === o) closeEditProfile(); };
+            document.body.appendChild(o);
+            window.editProfileOverlay = o;
+        }
+
+        function updateProfile() {
+            profile.name = document.getElementById('editName').value;
+            profile.startingWeight = parseFloat(document.getElementById('editWeight').value);
+            profile.desiredWeight = parseFloat(document.getElementById('editDesired').value);
+            profile.startDate = document.getElementById('editDate').value;
+            profile.measurementUnit = document.getElementById('editUnit').value;
+            if (weightEntries[0]) { weightEntries[0].date = profile.startDate; weightEntries[0].weight = profile.startingWeight; }
+            saveData(); closeEditProfile(); render();
+        }
+
+        function closeEditProfile() { if (window.editProfileOverlay) window.editProfileOverlay.remove(); }
+        function resetAll() { if (confirm('Reset ALL data? This cannot be undone!')) { localStorage.clear(); location.reload(); } }
+
+        render();
+    </script>
+</body>
+</html>
